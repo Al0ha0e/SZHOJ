@@ -21,10 +21,12 @@
                 </v-avatar>
             </template>
             <v-card>
-                <v-card-title>{{userId}}</v-card-title>
+                <v-card-title>{{userName}}</v-card-title>
                 <v-divider />
                 <v-card-actions>
                     <v-btn text v-on:click="showUserInfo">我的信息</v-btn>
+                    <v-btn text v-on:click="createQuestion">创建题目</v-btn>
+
                 </v-card-actions>
                 <!--v-card-text>
                    
@@ -52,7 +54,8 @@ export default {
 
     data: () => ({
         currPos: 0,
-        userId: "1726tgyeuva"
+        userId: "1726tgyeuva",
+        userName: "Al0ha0e"
     }),
     methods: {
         showList: function () {
@@ -78,6 +81,11 @@ export default {
             if(this.currPos==-2) return;
             this.currPos = -2;
             this.$router.push('/user/'+this.userId)
+        },
+        createQuestion(){
+            if(this.currPos==-3) return;
+            this.currPos = -3;
+            this.$router.push('/createq')
         }
     },
     mounted: function () {

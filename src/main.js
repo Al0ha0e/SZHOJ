@@ -23,15 +23,17 @@ import QuestList from './components/questList';
 import TestQueue from './components/testQueue';
 import QuestInfo from './components/questionInfo';
 import UserInfo from './components/userInfo';
+import CreateQuestion from './components/createQuestion';
 
 const routes = [
-  {path:'/list',component: QuestList},
-  {path:'/queue', component: TestQueue },
+  { path: '/list', component: QuestList },
+  { path: '/queue', component: TestQueue },
   { path: '/qinfo/:id', component: QuestInfo },
-  {path:'/user/:id',component: UserInfo}
+  { path: '/user/:id', component: UserInfo },
+  { path: '/createq', component: CreateQuestion }
 ]
 
-const router = new VueRouter({ mode:'history',routes: routes})
+const router = new VueRouter({ mode: 'history', routes: routes })
 
 new Vue({
   vuetify,
