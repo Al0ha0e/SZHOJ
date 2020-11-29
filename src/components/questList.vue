@@ -103,9 +103,9 @@ export default {
         showQuestionInfo(item, other) {
             //console.log(arg1)
             this.$router.push('/qinfo/' + item.id);
-
         },
         getQuestions(refreshStatus) {
+            //TODO: PAGING BUG!!!
             this.loading = true
 
             const {
@@ -131,9 +131,40 @@ export default {
                             this.questionStatus.set(st.qid, st.state.toString())
                         }
                     }
-
                     return axios.get(`http://127.0.0.1:8060/pgquest?pg=${page}&cnt=${itemsPerPage}`)
                 }).then((response) => {
+                    console.log(response)
+                    this.questions = response.data
+                    console.log(this.questionStatus)
+                    for (let question of this.questions) {
+                        switch (question.difficulty) {
+                            case 1:
+                                question.difficulty = "easy";
+                                break;
+                            case 2:
+                                question.difficulty = "normal";
+                                break;
+                            default:
+                                question.difficulty = "hard";
+                                break;
+                        }
+                        if (this.questionStatus.has(question.id.toString())) {
+                            question["state"] = this.questionStatus.get(question.id.toString()) == "1" ? 'ac' : 'nac'
+                        } else {
+                            question["state"] = 'unkown'
+                        }
+                        let tags = []
+                        for (let tag of question.tags) {
+                            tags.push(tag.name)
+                        }
+                        question.tags = tags
+                    }
+                    this.loading = false
+                    this.questionCnt = this.questions.length
+                })
+            }
+            else{
+                axios.get(`http://127.0.0.1:8060/pgquest?pg=${page}&cnt=${itemsPerPage}`).then((response) => {
                     console.log(response)
                     this.questions = response.data
                     console.log(this.questionStatus)
