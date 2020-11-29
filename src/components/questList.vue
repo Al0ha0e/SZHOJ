@@ -118,7 +118,6 @@ export default {
             if (refreshStatus) {
                 this.questionStatus = new Map()
                 axios.get(`http://127.0.0.1:8060/ministatus?uid=${this.userId}`).then((response) => {
-                    console.log(response)
                     for (let st of response.data) {
                         st.qid = st.qid.toString()
                         if (this.questionStatus.has(st.qid)) {
@@ -133,9 +132,7 @@ export default {
                     }
                     return axios.get(`http://127.0.0.1:8060/pgquest?pg=${page}&cnt=${itemsPerPage}`)
                 }).then((response) => {
-                    console.log(response)
                     this.questions = response.data
-                    console.log(this.questionStatus)
                     for (let question of this.questions) {
                         switch (question.difficulty) {
                             case 1:
@@ -161,13 +158,14 @@ export default {
                     }
                     this.loading = false
                     this.questionCnt = this.questions.length
+                }).catch((err)=>{
+                    console.log(err)
+                    this.loading = false
                 })
             }
             else{
                 axios.get(`http://127.0.0.1:8060/pgquest?pg=${page}&cnt=${itemsPerPage}`).then((response) => {
-                    console.log(response)
                     this.questions = response.data
-                    console.log(this.questionStatus)
                     for (let question of this.questions) {
                         switch (question.difficulty) {
                             case 1:
@@ -193,6 +191,9 @@ export default {
                     }
                     this.loading = false
                     this.questionCnt = this.questions.length
+                }).catch((err)=>{
+                    console.log(err)
+                    this.loading = false
                 })
             }
         }

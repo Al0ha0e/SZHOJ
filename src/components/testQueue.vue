@@ -1,6 +1,6 @@
 <template>
 <v-container>
-    <v-data-table :headers="headers" :items="questions" :items-per-page="5" class="elevation-1">
+    <v-data-table :headers="headers" :items="statusShowed" :loading="loading" :options.sync="options" :server-items-length="statusCnt" class="elevation-1">
         <template v-slot:item.state="{ item }">
             <v-chip :color="getColor(item.state)" small dark>
                 {{ item.state }}
@@ -11,10 +11,13 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
     name: 'TestQueue',
 
     data: () => ({
+        loading: true,
+        options: {},
         headers: [{
                 text: 'ID',
                 align: 'start',
@@ -22,16 +25,16 @@ export default {
                 value: 'id',
             },
             {
-                text: '题目名称',
+                text: '题目',
                 align: 'start',
                 sortable: false,
-                value: 'name'
+                value: 'qid'
             },
             {
                 text: '提交者',
                 //align: 'start',
                 sortable: true,
-                value: 'userId'
+                value: 'uid'
             },
             {
                 text: '提交时间',
@@ -46,29 +49,95 @@ export default {
                 value: 'state'
             },
         ],
-        questions: [{
-            id: "114514",
-            name: "A+B Problem",
-            userId: "szh11",
-            commitTime: "2000-05-11 11:20:00",
-            state: "AC"
-        }, {
-            id: "1919810",
-            name: "下北泽旅行商",
-            userId: "szh11",
-            commitTime: "2000-05-11 11:20:00",
-            state: "WA"
-        }, ],
+        statusCnt: 0,
+        statusShowed: [],
+        status: [],
     }),
+    watch: {
+        options: {
+            handler() {
+                this.getStatus()
+            },
+            deep: true
+        }
+    },
     methods: {
         getColor(state) {
             if (state == 'AC') return 'green'
             else if (state == 'WA') return 'red'
             else return 'orange'
         },
+        parseResponse(respose) {
+            let ret = respose
+            for (let st of ret) {
+                switch (st.state) {
+                    case 1:
+                        st.state = "AC"
+                        break;
+                    default:
+                        st.state = "WA"
+                        break;
+                }
+                let tm = st.commitTime.split('T')
+                let day = tm[0]
+                let hr = (tm[1].split('+'))[0]
+                st.commitTime = day + " " + hr
+            }
+            return ret
+        },
+        //Only for response with conditions
+        getResponseByPage(page, cnt) {
+            let st = (page - 1) * cnt
+            if (st > this.statusCnt) {
+                this.statusShowed = []
+                return
+            }
+            let en = page * cnt
+            en = en > this.statusCnt ? this.statusCnt : en
+            this.statusShowed = this.status.slice(st, en) 
+        },
+        getStatus() {
+            this.loading = true;
+            const {
+                sortBy,
+                sortDesc,
+                page,
+                itemsPerPage
+            } = this.options
+            let param = {
+                id: 1, //NOT ZERO
+                qid: typeof (this.$route.query.qid) == undefined ? 0 : parseInt(this.$route.query.qid),
+                uid: typeof (this.$route.query.uid) == undefined ? 0 : parseInt(this.$route.query.uid)
+            }
+            if (param.qid > 0 || param.uid > 0) {
+                //with conditions
+                if (page > 1) {
+                    this.getResponseByPage(page, itemsPerPage)
+                    return
+                }
+                axios.post('http://127.0.0.1:8060/status', param).then((response) => {
+                    this.status = this.parseResponse(response.data)
+                    this.statusCnt = this.status.length
+                    this.getResponseByPage(page, itemsPerPage)
+                    this.loading = false
+                }).catch((err) => {
+                    console.log(err)
+                    this.loading = false
+                })
+            } else {
+                //TODO PAGING!!!
+                axios.get(`http://127.0.0.1:8060/pgstatus?pg=${page}&cnt=${itemsPerPage}`, param).then((response) => {
+                    this.statusShowed = this.parseResponse(response.data)
+                    this.statusCnt = this.statusShowed.length
+                    this.loading = false
+                }).catch((err) => {
+                    console.log(err)
+                    this.loading = false
+                })
+            }
+        }
     },
-    mounted: function(){
-        console.log("QUERY",this.$route.query)
+    mounted: function () {
         let event = new CustomEvent('changeState', {
             detail: {
                 state: 1
@@ -76,6 +145,7 @@ export default {
             cancelable: true
         });
         document.dispatchEvent(event);
+        this.getStatus()
     }
 }
 </script>

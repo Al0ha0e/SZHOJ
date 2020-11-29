@@ -90,7 +90,7 @@
             <v-col cols="12">
                 <v-card>
                     <v-card-text>
-                        <v-btn color="purple" class="ma-2 white--text">
+                        <v-btn color="purple" v-on:click="showStatus" class="ma-2 white--text">
                             状态
                             <v-icon right dark>
                                 mdi-chart-pie
@@ -125,7 +125,7 @@ import 'codemirror/mode/python/python.js'
 export default {
     name: 'QuestionInfo',
     data: () => ({
-        questionInfo: { },
+        questionInfo: {},
         value: ``,
         description: ``,
         code: `#include<stdio.h>
@@ -258,6 +258,9 @@ return false;
                 this.code = coder.getValue()
             })
         },
+        showStatus() {
+            this.$router.push(`/queue?qid=${this.questionInfo.id}`)
+        }
     },
     mounted: function () {
         let event = new CustomEvent('changeState', {
@@ -267,7 +270,6 @@ return false;
             cancelable: true
         });
         document.dispatchEvent(event);
-        console.log(this.$route.params.id)
 
         axios.get(`http://127.0.0.1:8060/question?qid=${this.$route.params.id}`).then((response) => {
             this.questionInfo = response.data
@@ -287,9 +289,13 @@ return false;
                 tags.push(tag.name)
             }
             this.questionInfo.tags = tags
+        }).catch((err) => {
+            console.log(err)
         })
-        axios.get(`http://127.0.0.1:8060/quedesc?qid=${this.$route.params.id}`).then((response)=>{
+        axios.get(`http://127.0.0.1:8060/quedesc?qid=${this.$route.params.id}`).then((response) => {
             this.description = response.data
+        }).catch((err) => {
+            console.log(err)
         })
         this.initCodeMirror()
     }
