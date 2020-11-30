@@ -6,7 +6,7 @@
             <v-col cols="12">
                 <v-card padding="10px">
                     <v-card-text>
-                        <article v-html="description" slot="default"></article>
+                        <article v-html="description" slot="default" id="mveditor"></article>
                     </v-card-text>
                 </v-card>
             </v-col>
@@ -15,7 +15,7 @@
                 <v-card>
                     <v-card-text>
                         我的代码 &nbsp;
-                        <v-btn color="green" class="ma-2 white--text">
+                        <v-btn color="green" class="ma-2 white--text" v-on:click="commitAnswer">
                             提交
                             <v-icon right dark>
                                 mdi-upload
@@ -62,13 +62,13 @@
                         <v-divider />
                         <v-list-item>
                             <v-list-item-content>
-                                <v-list-item-title>时间限制: &nbsp;{{questionInfo.timeLimit}}秒</v-list-item-title>
+                                <v-list-item-title>时间限制: &nbsp;{{questionInfo.timeLimit}}ms</v-list-item-title>
                             </v-list-item-content>
                         </v-list-item>
                         <v-divider />
                         <v-list-item>
                             <v-list-item-content>
-                                <v-list-item-title>空间限制: &nbsp;{{questionInfo.memoryLimit}}KB</v-list-item-title>
+                                <v-list-item-title>空间限制: &nbsp;{{questionInfo.memoryLimit}}MB</v-list-item-title>
                             </v-list-item-content>
                         </v-list-item>
                         <v-divider />
@@ -128,100 +128,7 @@ export default {
         questionInfo: {},
         value: ``,
         description: ``,
-        code: `#include<stdio.h>
-#include<string.h>
-#include<algorithm>
-#define inf 1000
-using namespace std;
-int ans,v1,v2,edg;
-bool link[1005][1005],pp[1005],vis[1005];
-bool dfs(int);
-int main()
-{
-
-scanf("%d%d%d",&v1,&v2,&edg);
-
-int u,v;
-
-int i;
-
-for(i=1;i<=edg;i++)
-
-{
-
-scanf("%d%d",&u,&v);
-
-link[u][v] = true;
-
-}
-
-if(v1<v2)
-
-{
-
-for(i=1;i<=v1;i++)
-
-{
-
-memset(vis,0,sizeof(vis));
-
-if(dfs(i)) ans++;
-
-}
-
-}
-
-else
-
-{
-
-for(i=1;i<=v2;i++)
-
-{
-
-memset(vis,0,sizeof(vis));
-
-if(dfs(i)) ans++;
-
-}
-
-}
-
-printf("%d",ans);
-
-return 0;
-}
-bool dfs(int now)
-{
-
-int i = 1;
-
-for(i=1;i<=inf;i++)
-
-{
-
-if(link[now][i]&&!vis[i])
-
-{
-
-vis[i] = true;
-
-if(!pp[i]||dfs(i))
-
-{
-
-pp[i] = now;
-
-return true;
-
-}
-
-}
-
-}
-
-return false;
-}`,
+        code: ``,
         mode: "text/x-csrc",
         coder: null,
         options: {
@@ -243,8 +150,9 @@ return false;
     }),
     methods: {
         getColor(difficulty) {
-            if (difficulty == 'hard') return 'red'
-            else if (difficulty == 'normal') return 'orange'
+            if (difficulty == '困难') return 'red'
+            else if (difficulty == '中等') return 'orange'
+            else if (difficulty == '简单') return 'yellow'
             else return 'green'
         },
         showMd(a, b) {
@@ -260,6 +168,35 @@ return false;
         },
         showStatus() {
             this.$router.push(`/queue?qid=${this.questionInfo.id}`)
+        },
+        commitAnswer() {
+            let form = new FormData()
+            let ansInfo = {
+                id: 10,
+                qid: this.questionInfo.id,
+                state: 0
+            }
+            let ansBlob = new Blob([this.code])
+            let ansFile = new File([ansBlob], 'ans')
+            form.append("commit", JSON.stringify(ansInfo))
+            form.append('file', ansFile)
+            let config = {
+                method: 'post',
+                url: 'http://127.0.0.1:8060/upanswer',
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                },
+                data: form
+            };
+
+            axios(config)
+                .then((response) => {
+                    //console.log(response.data);
+                    this.$router.push('/queue');
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
         }
     },
     mounted: function () {
@@ -275,13 +212,16 @@ return false;
             this.questionInfo = response.data
             switch (this.questionInfo.difficulty) {
                 case 1:
-                    this.questionInfo.difficulty = "easy";
+                    this.questionInfo.difficulty = "入门";
                     break;
                 case 2:
-                    this.questionInfo.difficulty = "normal";
+                    this.questionInfo.difficulty = "简单";
+                    break;
+                case 3:
+                    this.questionInfo.difficulty = "中等";
                     break;
                 default:
-                    this.questionInfo.difficulty = "hard";
+                    this.questionInfo.difficulty = "困难";
                     break;
             }
             let tags = []
@@ -301,6 +241,8 @@ return false;
     }
 }
 </script>
-
 <style scoped>
+#mveditor{
+    z-index: 1 !important;
+}
 </style>

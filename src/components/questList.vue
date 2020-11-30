@@ -92,13 +92,10 @@ export default {
     },
     methods: {
         getColor(difficulty) {
-            if (difficulty == 'hard') {
-                return 'red'
-            } else if (difficulty == 'normal') {
-                return 'orange'
-            } else {
-                return 'green'
-            }
+            if (difficulty == '困难') return 'red'
+            else if (difficulty == '中等') return 'orange'
+            else if (difficulty == '简单') return 'yellow'
+            else return 'green'
         },
         showQuestionInfo(item, other) {
             //console.log(arg1)
@@ -114,7 +111,7 @@ export default {
                 page,
                 itemsPerPage
             } = this.options
-            
+
             if (refreshStatus) {
                 this.questionStatus = new Map()
                 axios.get(`http://127.0.0.1:8060/ministatus?uid=${this.userId}`).then((response) => {
@@ -126,7 +123,7 @@ export default {
                                 continue;
                             }
                             this.questionStatus.set(st.qid, st.state.toString())
-                        } else {
+                        } else if (st.state != 0) {
                             this.questionStatus.set(st.qid, st.state.toString())
                         }
                     }
@@ -136,13 +133,16 @@ export default {
                     for (let question of this.questions) {
                         switch (question.difficulty) {
                             case 1:
-                                question.difficulty = "easy";
+                                question.difficulty = "入门";
                                 break;
                             case 2:
-                                question.difficulty = "normal";
+                                question.difficulty = "简单";
+                                break;
+                            case 3:
+                                question.difficulty = "中等";
                                 break;
                             default:
-                                question.difficulty = "hard";
+                                question.difficulty = "困难";
                                 break;
                         }
                         if (this.questionStatus.has(question.id.toString())) {
@@ -158,24 +158,26 @@ export default {
                     }
                     this.loading = false
                     this.questionCnt = this.questions.length
-                }).catch((err)=>{
+                }).catch((err) => {
                     console.log(err)
                     this.loading = false
                 })
-            }
-            else{
+            } else {
                 axios.get(`http://127.0.0.1:8060/pgquest?pg=${page}&cnt=${itemsPerPage}`).then((response) => {
                     this.questions = response.data
                     for (let question of this.questions) {
                         switch (question.difficulty) {
                             case 1:
-                                question.difficulty = "easy";
+                                question.difficulty = "入门";
                                 break;
                             case 2:
-                                question.difficulty = "normal";
+                                question.difficulty = "简单";
+                                break;
+                            case 3:
+                                question.difficulty = "中等";
                                 break;
                             default:
-                                question.difficulty = "hard";
+                                question.difficulty = "困难";
                                 break;
                         }
                         if (this.questionStatus.has(question.id.toString())) {
@@ -191,7 +193,7 @@ export default {
                     }
                     this.loading = false
                     this.questionCnt = this.questions.length
-                }).catch((err)=>{
+                }).catch((err) => {
                     console.log(err)
                     this.loading = false
                 })

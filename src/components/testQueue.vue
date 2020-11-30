@@ -64,18 +64,45 @@ export default {
     methods: {
         getColor(state) {
             if (state == 'AC') return 'green'
-            else if (state == 'WA') return 'red'
-            else return 'orange'
+            if (state == 'WA') return 'red'
+            if (state == 'TLE' || state == 'MLE') return 'blue'
+            if (state == 'RE') return 'purple'
+            if (state == 'CE') return 'yellow'
+            if (state == 'SYS_ERR') return 'orange'
+            else return 'grey'
         },
         parseResponse(respose) {
             let ret = respose
             for (let st of ret) {
+                console.log(st)
                 switch (st.state) {
+                    case 0:
+                        st.state = "PENDING"
+                        break;
                     case 1:
                         st.state = "AC"
                         break;
-                    default:
+                    case 2:
+                    case 3:
+                        st.state = "TLE"
+                        break
+                    case 4:
+                        st.state = "MLE"
+                        break
+                    case 5:
+                        st.state = "RE"
+                        break
+                    case 6:
+                        st.state = "SYS_ERR"
+                        break
+                    case 7:
+                        st.state = "CE"
+                        break
+                    case 8:
                         st.state = "WA"
+                        break
+                    default:
+                        st.state = "UNKOWN"
                         break;
                 }
                 let tm = st.commitTime.split('T')
@@ -94,7 +121,7 @@ export default {
             }
             let en = page * cnt
             en = en > this.statusCnt ? this.statusCnt : en
-            this.statusShowed = this.status.slice(st, en) 
+            this.statusShowed = this.status.slice(st, en)
         },
         getStatus() {
             this.loading = true;
