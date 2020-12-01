@@ -72,7 +72,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 import questionInfoVue from './questionInfo.vue'
 
 export default {
@@ -171,7 +170,7 @@ export default {
                 },
                 data: form
             };
-            axios(config)
+            this.axios(config)
                 .then((response) => {
                     //console.log(response.data);
                     this.uploadSuccess = true;

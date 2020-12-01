@@ -6,7 +6,7 @@
 
 <script>
 export default {
-    name: 'UserInfo',
+    name: 'JudgeOutcome',
 
     data: () => ({}),
     methods: {},

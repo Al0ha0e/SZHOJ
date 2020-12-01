@@ -11,7 +11,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 export default {
     name: 'TestQueue',
 
@@ -142,7 +141,7 @@ export default {
                     this.getResponseByPage(page, itemsPerPage)
                     return
                 }
-                axios.post('http://127.0.0.1:8060/status', param).then((response) => {
+                this.axios.post('http://127.0.0.1:8060/status', param).then((response) => {
                     this.status = this.parseResponse(response.data)
                     this.statusCnt = this.status.length
                     this.getResponseByPage(page, itemsPerPage)
@@ -153,7 +152,7 @@ export default {
                 })
             } else {
                 //TODO PAGING!!!
-                axios.get(`http://127.0.0.1:8060/pgstatus?pg=${page}&cnt=${itemsPerPage}`, param).then((response) => {
+                this.axios.get(`http://127.0.0.1:8060/pgstatus?pg=${page}&cnt=${itemsPerPage}`, param).then((response) => {
                     this.statusShowed = this.parseResponse(response.data)
                     this.statusCnt = this.statusShowed.length
                     this.loading = false

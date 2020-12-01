@@ -26,7 +26,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 
 export default {
     name: 'QuestList',
@@ -114,7 +113,7 @@ export default {
 
             if (refreshStatus) {
                 this.questionStatus = new Map()
-                axios.get(`http://127.0.0.1:8060/ministatus?uid=${this.userId}`).then((response) => {
+                this.axios.get(`http://127.0.0.1:8060/ministatus?uid=${this.userId}`).then((response) => {
                     for (let st of response.data) {
                         st.qid = st.qid.toString()
                         if (this.questionStatus.has(st.qid)) {
@@ -127,7 +126,7 @@ export default {
                             this.questionStatus.set(st.qid, st.state.toString())
                         }
                     }
-                    return axios.get(`http://127.0.0.1:8060/pgquest?pg=${page}&cnt=${itemsPerPage}`)
+                    return this.axios.get(`http://127.0.0.1:8060/pgquest?pg=${page}&cnt=${itemsPerPage}`)
                 }).then((response) => {
                     this.questions = response.data
                     for (let question of this.questions) {
@@ -163,7 +162,7 @@ export default {
                     this.loading = false
                 })
             } else {
-                axios.get(`http://127.0.0.1:8060/pgquest?pg=${page}&cnt=${itemsPerPage}`).then((response) => {
+                this.axios.get(`http://127.0.0.1:8060/pgquest?pg=${page}&cnt=${itemsPerPage}`).then((response) => {
                     this.questions = response.data
                     for (let question of this.questions) {
                         switch (question.difficulty) {

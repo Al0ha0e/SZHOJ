@@ -16,7 +16,7 @@
         <v-spacer></v-spacer>
         <v-menu open-on-hover offset-y>
             <template v-slot:activator="{ on, attrs }">
-                <v-avatar v-bind="attrs" v-on="on">
+                <v-avatar v-if="currPos>-100" v-bind="attrs" v-on="on">
                     <img src="https://i.loli.net/2020/11/27/UWT6fxk54RA7mZM.jpg" alt="John">
                 </v-avatar>
             </template>
@@ -77,26 +77,31 @@ export default {
         showContest: function () {
             this.currPos = 2
         },
-        showUserInfo: function(){
-            if(this.currPos==-2) return;
+        showUserInfo: function () {
+            if (this.currPos == -2) return;
             this.currPos = -2;
-            this.$router.push('/user/'+this.userId)
+            this.$router.push('/user/' + this.userId)
         },
-        createQuestion(){
-            if(this.currPos==-3) return;
+        createQuestion() {
+            if (this.currPos == -3) return;
             this.currPos = -3;
             this.$router.push('/createq')
         }
     },
     mounted: function () {
-        if (this.$route.path == '/list') {
+        this.$cookies.config('30d')
+        console.log(this.$cookies.get("mysession"),this.$cookies.keys())
+        if (this.$route.path == '/login') {
+            this.currPos = -100;
+        } else if (this.$route.path == '/register') {
+            this.currPos = -101;
+        } else if (this.$route.path == '/list') {
             this.currPos = 0;
         } else if (this.$route.path == '/queue') {
             this.currPos = 1;
         } else if (this.$route.path.split('/')[1] == 'qinfo') {
             this.currPos = -1;
-        }
-        else if (this.$route.path.split('/')[1] == 'user') {
+        } else if (this.$route.path.split('/')[1] == 'user') {
             this.currPos = -2;
         }
         document.addEventListener('changeState', (e) => {

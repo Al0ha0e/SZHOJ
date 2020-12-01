@@ -112,7 +112,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 
 import CodeMirror from 'codemirror'
 import 'codemirror/lib/codemirror.css'
@@ -189,7 +188,7 @@ export default {
                 data: form
             };
 
-            axios(config)
+            this.axios(config)
                 .then((response) => {
                     //console.log(response.data);
                     this.$router.push('/queue');
@@ -208,7 +207,7 @@ export default {
         });
         document.dispatchEvent(event);
 
-        axios.get(`http://127.0.0.1:8060/question?qid=${this.$route.params.id}`).then((response) => {
+        this.axios.get(`http://127.0.0.1:8060/question?qid=${this.$route.params.id}`).then((response) => {
             this.questionInfo = response.data
             switch (this.questionInfo.difficulty) {
                 case 1:
@@ -232,7 +231,7 @@ export default {
         }).catch((err) => {
             console.log(err)
         })
-        axios.get(`http://127.0.0.1:8060/quedesc?qid=${this.$route.params.id}`).then((response) => {
+        this.axios.get(`http://127.0.0.1:8060/quedesc?qid=${this.$route.params.id}`).then((response) => {
             this.description = response.data
         }).catch((err) => {
             console.log(err)
