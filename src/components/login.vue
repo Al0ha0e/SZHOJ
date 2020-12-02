@@ -2,6 +2,7 @@
 <v-container>
     <v-dialog v-model="loginDialog" width="500">
         <v-card>
+            <v-card-title>登陆提示</v-card-title>
             <v-card-text>{{loginOutcome}}</v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
@@ -29,7 +30,6 @@
 </template>
 
 <script>
-
 export default {
     name: 'Login',
 
@@ -89,6 +89,15 @@ export default {
                     let res = response.data.split(' ')
                     if (res.length == 3 && res[0] == 'login' && res[1] == 'success') {
                         localStorage.setItem("userId", parseInt(res[2]))
+                        localStorage.setItem("username", this.username)
+                        let event = new CustomEvent('loggedIn', {
+                            detail: {
+                                userId: parseInt(res[2]),
+                                username: this.username
+                            },
+                            cancelable: true
+                        });
+                        document.dispatchEvent(event);
                         this.loginSuccess = true;
                         this.loginOutcome = "登录成功"
                     } else {

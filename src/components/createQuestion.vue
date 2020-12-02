@@ -148,7 +148,7 @@ export default {
             }
             let qInfo = {
                 name: this.name,
-                creator: 10,
+                creator: parseInt(localStorage.getItem("userId")),
                 difficulty: numdifficulty,
                 timeLimit: this.timeLimit,
                 memoryLimit: this.memoryLimit,

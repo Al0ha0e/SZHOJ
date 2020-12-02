@@ -32,7 +32,7 @@ export default {
 
     data: () => ({
         loading: true,
-        userId: 10,
+        userId: 0,
         headers: [{
                 text: '状态',
                 align: 'start',
@@ -200,6 +200,7 @@ export default {
         }
     },
     mounted: function () {
+        this.userId = localStorage.getItem("userId")
         let event = new CustomEvent('changeState', {
             detail: {
                 state: 0
