@@ -1,5 +1,17 @@
 <template>
   <v-container>
+    <v-dialog v-model="outcomeDialog" width="500">
+      <v-card>
+        <v-card-title>{{ outcomeTitle }}</v-card-title>
+        <v-card-text>{{ outcomeContent }}</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn v-on:click="outcomeDialog = false" color="primary" text
+            >确认</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="detailDialog" width="500">
       <v-card>
         <v-card-title>用户组信息</v-card-title>
@@ -22,8 +34,11 @@
         <v-card-title>创建用户组</v-card-title>
         <p />
         <v-card-text>
-          组名&nbsp;<v-text-field dense></v-text-field>
-          配置文件&nbsp;<v-file-input dense />
+          组名&nbsp;<v-text-field
+            dense
+            v-model="newUserGroupName"
+          ></v-text-field>
+          配置文件&nbsp;<v-file-input dense v-model="newUserGroupFile" />
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -40,7 +55,11 @@
       <v-card>
         <v-card-title>删除用户组</v-card-title>
         <v-card-text
-          ><v-select :items="userGroupCreatedList" label="用户组"></v-select
+          ><v-select
+            :items="userGroupCreatedList"
+            v-model="groupToBeDeleted"
+            label="用户组"
+          ></v-select
         ></v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -96,6 +115,9 @@ export default {
     detailDialog: false,
     addDialog: false,
     deleteDialog: false,
+    outcomeDialog: false,
+    outcomeTitle: "",
+    outcomeContent: "",
     headers: [
       {
         text: "ID",
@@ -128,8 +150,38 @@ export default {
     userGroupCreated: [],
     userGroupCreatedList: [],
     userGroupAttended: [],
+    newUserGroupName: "",
+    newUserGroupFile: {},
+    groupToBeDeleted: "",
   }),
   methods: {
+    getAttendedGroup() {
+      this.axios
+        .get(`http://127.0.0.1:8060/usergroup?attend=1`)
+        .then((response) => {
+          this.userGroupAttended = response.data;
+          console.log("ADIDI", this.userGroupAttended);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    getCreatedGroup() {
+      this.axios
+        .get(`http://127.0.0.1:8060/usergroup?attend=0`)
+        .then((response) => {
+          this.userGroupCreatedList = [];
+          this.userGroupCreated = response.data;
+          for (let item of this.userGroupCreated) {
+            this.userGroupCreatedList.push(
+              "ID: " + item.id + " 名称 " + item.name
+            );
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
     showGroupDetail(item, other) {
       this.detailDialog = true;
       this.userInfo = item.users;
@@ -137,9 +189,49 @@ export default {
     },
     addUserGroup() {
       this.addDialog = false;
+      let form = new FormData();
+      console.log(this.newUserGroupName, this.newUserGroupFile);
+      form.append("name", this.newUserGroupName);
+      form.append("file", this.newUserGroupFile);
+      let config = {
+        method: "post",
+        url: "http://127.0.0.1:8060/addgroup",
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        data: form,
+      };
+      this.axios(config)
+        .then((response) => {
+          this.outcomeDialog = true;
+          this.outcomeTitle = "创建结果";
+          this.outcomeContent = "创建成功";
+          this.getAttendedGroup();
+          this.getCreatedGroup();
+        })
+        .catch((error) => {
+          this.outcomeDialog = true;
+          this.outcomeTitle = "创建结果";
+          this.outcomeContent = "创建失败";
+        });
     },
     deleteUserGroup() {
       this.deleteDialog = false;
+      let gid = parseInt(this.groupToBeDeleted.split(" ")[1]);
+      this.axios
+        .post(`http://127.0.0.1:8060/delgroup?gid=${gid}`)
+        .then((response) => {
+          this.outcomeDialog = true;
+          this.outcomeTitle = "删除结果";
+          this.outcomeContent = "删除成功";
+          this.getAttendedGroup();
+          this.getCreatedGroup();
+        })
+        .catch((error) => {
+          this.outcomeDialog = true;
+          this.outcomeTitle = "删除结果";
+          this.outcomeContent = "删除失败";
+        });
     },
   },
   mounted: function () {
@@ -150,27 +242,8 @@ export default {
       cancelable: true,
     });
     document.dispatchEvent(event);
-    this.axios
-      .get(`http://127.0.0.1:8060/usergroup?attend=1`)
-      .then((response) => {
-        this.userGroupCreated = response.data;
-        for (let item of this.userGroupCreated) {
-          this.userGroupCreatedList.push(
-            "ID: " + item.id + " 名称 " + item.name
-          );
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    this.axios
-      .get(`http://127.0.0.1:8060/usergroup?attend=0`)
-      .then((response) => {
-        this.userGroupAttended = response.data;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    this.getAttendedGroup();
+    this.getCreatedGroup();
   },
 };
 </script>

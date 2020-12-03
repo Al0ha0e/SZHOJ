@@ -38,18 +38,21 @@ import LogIn from './components/login'
 import Register from './components/register'
 import Contest from './components/contest'
 import ContestInfo from './components/contestInfo';
+import CreateContest from './components/createContest';
 
 const routes = [
   { path: '/list', component: QuestList },
   { path: '/queue', component: TestQueue },
   { path: '/qinfo/:id', component: QuestInfo },
+  { path: '/cinfo/:id', component: ContestInfo },
   { path: '/sdetail/:id', component: StatusDetail },
   { path: '/user/:id', component: UserInfo },
   { path: '/usergroup', component: UserGroup },
   { path: '/createq', component: CreateQuestion },
   { path: '/login', component: LogIn },
   { path: '/register', component: Register },
-  { path: '/contest', component: ContestInfo }
+  { path: '/contest', component: Contest },
+  { path: '/createc', component: CreateContest }
 ]
 
 const router = new VueRouter({ mode: 'history', routes: routes })

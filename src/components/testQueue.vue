@@ -115,6 +115,7 @@ export default {
             st.state = "UNKOWN";
             break;
         }
+        console.log(st.commitTime);
         let tm = st.commitTime.split("T");
         let day = tm[0];
         let hr = tm[1].split("+")[0];

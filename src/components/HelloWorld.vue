@@ -1,151 +1,225 @@
 <template>
   <v-container>
-    <v-row class="text-center">
-      <v-col cols="12">
-        <v-img
-          :src="require('../assets/logo.svg')"
-          class="my-3"
-          contain
-          height="200"
-        />
-      </v-col>
-
-      <v-col class="mb-4">
-        <h1 class="display-2 font-weight-bold mb-3">
-          Welcome to Vuetify
-        </h1>
-
-        <p class="subheading font-weight-regular">
-          For help and collaboration with other Vuetify developers,
-          <br>please join our online
-          <a
-            href="https://community.vuetifyjs.com"
-            target="_blank"
-          >Discord Community</a>
-        </p>
-      </v-col>
-
-      <v-col
-        class="mb-5"
-        cols="12"
-      >
-        <h2 class="headline font-weight-bold mb-3">
-          What's next?
-        </h2>
-
-        <v-row justify="center">
-          <a
-            v-for="(next, i) in whatsNext"
-            :key="i"
-            :href="next.href"
-            class="subheading mx-3"
-            target="_blank"
+    <!--v-dialog v-model="outcomeDialog" width="500">
+      <v-card>
+        <v-card-title>{{ outcomeTitle }}</v-card-title>
+        <v-card-text>{{ outcomeContent }}</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn v-on:click="outcomeDialog = false" color="primary" text
+            >确认</v-btn
           >
-            {{ next.text }}
-          </a>
-        </v-row>
-      </v-col>
-
-      <v-col
-        class="mb-5"
-        cols="12"
-      >
-        <h2 class="headline font-weight-bold mb-3">
-          Important Links
-        </h2>
-
-        <v-row justify="center">
-          <a
-            v-for="(link, i) in importantLinks"
-            :key="i"
-            :href="link.href"
-            class="subheading mx-3"
-            target="_blank"
+        </v-card-actions>
+      </v-card>
+    </v-dialog-->
+    <v-dialog v-model="detailDialog" width="500">
+      <v-card>
+        <v-card-title>用户组信息</v-card-title>
+        <v-card-text
+          ><v-data-table
+            :headers="userInfoHeaders"
+            :items="userInfo"
+          ></v-data-table
+        ></v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn v-on:click="detailDialog = false" color="primary" text
+            >确认</v-btn
           >
-            {{ link.text }}
-          </a>
-        </v-row>
-      </v-col>
-
-      <v-col
-        class="mb-5"
-        cols="12"
-      >
-        <h2 class="headline font-weight-bold mb-3">
-          Ecosystem
-        </h2>
-
-        <v-row justify="center">
-          <a
-            v-for="(eco, i) in ecosystem"
-            :key="i"
-            :href="eco.href"
-            class="subheading mx-3"
-            target="_blank"
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="addDialog" width="500">
+      <v-card>
+        <v-card-title>创建用户组</v-card-title>
+        <p />
+        <v-card-text>
+          组名&nbsp;<v-text-field dense></v-text-field>
+          配置文件&nbsp;<v-file-input dense />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn v-on:click="addUserGroup" color="primary" left text
+            >确认</v-btn
           >
-            {{ eco.text }}
-          </a>
-        </v-row>
+          <v-btn v-on:click="addDialog = false" color="primary" right text
+            >取消</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="deleteDialog" width="500">
+      <v-card>
+        <v-card-title>删除用户组</v-card-title>
+        <v-card-text
+          ><v-select :items="userGroupCreatedList" label="用户组"></v-select
+        ></v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn v-on:click="deleteUserGroup" color="primary" left text
+            >确认</v-btn
+          >
+          <v-btn v-on:click="deleteDialog = false" color="primary" right text
+            >取消</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-row>
+      <v-col cols="6">
+        <v-card>
+          <v-card-title>
+            我创建的用户组
+            <v-spacer />
+            <v-btn color="green" v-on:click="addDialog = true" dark>新增</v-btn>
+            &nbsp;
+            <v-btn color="red" v-on:click="deleteDialog = true" dark
+              >删除</v-btn
+            >
+          </v-card-title>
+          <v-divider />
+          <v-data-table
+            :headers="headers"
+            :items="userGroupCreated"
+            @click:row="showGroupDetail"
+          ></v-data-table>
+        </v-card>
+      </v-col>
+      <v-col cols="6">
+        <v-card>
+          <v-card-title>我参加的用户组</v-card-title>
+          <v-divider />
+          <v-data-table
+            :headers="headers"
+            :items="userGroupAttended"
+            @click:row="showGroupDetail"
+          ></v-data-table>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-  export default {
-    name: 'HelloWorld',
+export default {
+  name: "UserGroup",
 
-    data: () => ({
-      ecosystem: [
-        {
-          text: 'vuetify-loader',
-          href: 'https://github.com/vuetifyjs/vuetify-loader',
+  data: () => ({
+    detailDialog: false,
+    addDialog: false,
+    deleteDialog: false,
+    outcomeDialog: false,
+    outcomeTitle: "",
+    outcomeContent: "",
+    headers: [
+      {
+        text: "ID",
+        align: "start",
+        sortable: false,
+        value: "id",
+      },
+      {
+        text: "组名",
+        align: "start",
+        sortable: false,
+        value: "name",
+      },
+    ],
+    userInfoHeaders: [
+      {
+        text: "ID",
+        align: "start",
+        sortable: false,
+        value: "id",
+      },
+      {
+        text: "用户名",
+        align: "start",
+        sortable: false,
+        value: "name",
+      },
+    ],
+    userInfo: [],
+    userGroupCreated: [],
+    userGroupCreatedList: [],
+    userGroupAttended: [],
+    newUserGroupName,
+    newUserGroupFile,
+  }),
+  methods: {
+    getAttendedGroup() {
+      this.axios
+        .get(`http://127.0.0.1:8060/usergroup?attend=0`)
+        .then((response) => {
+          this.userGroupAttended = response.data;
+          console.log("ADIDI", this.userGroupAttended);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    getCreatedGroup() {
+      this.axios
+        .get(`http://127.0.0.1:8060/usergroup?attend=1`)
+        .then((response) => {
+          this.userGroupCreatedList = [];
+          this.userGroupCreated = response.data;
+          for (let item of this.userGroupCreated) {
+            this.userGroupCreatedList.push(
+              "ID: " + item.id + " 名称 " + item.name
+            );
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    showGroupDetail(item, other) {
+      this.detailDialog = true;
+      this.userInfo = item.users;
+      console.log(this.userInfo);
+    },
+    addUserGroup() {
+      this.addDialog = false;
+      let form = new FormData();
+      form.append("name", this.newUserGroupName);
+      form.append("file", this.newUserGroupFile);
+      let config = {
+        method: "post",
+        url: "http://127.0.0.1:8060/addgroup",
+        headers: {
+          "Content-Type": "multipart/form-data",
         },
-        {
-          text: 'github',
-          href: 'https://github.com/vuetifyjs/vuetify',
-        },
-        {
-          text: 'awesome-vuetify',
-          href: 'https://github.com/vuetifyjs/awesome-vuetify',
-        },
-      ],
-      importantLinks: [
-        {
-          text: 'Documentation',
-          href: 'https://vuetifyjs.com',
-        },
-        {
-          text: 'Chat',
-          href: 'https://community.vuetifyjs.com',
-        },
-        {
-          text: 'Made with Vuetify',
-          href: 'https://madewithvuejs.com/vuetify',
-        },
-        {
-          text: 'Twitter',
-          href: 'https://twitter.com/vuetifyjs',
-        },
-        {
-          text: 'Articles',
-          href: 'https://medium.com/vuetify',
-        },
-      ],
-      whatsNext: [
-        {
-          text: 'Explore components',
-          href: 'https://vuetifyjs.com/components/api-explorer',
-        },
-        {
-          text: 'Select a layout',
-          href: 'https://vuetifyjs.com/getting-started/pre-made-layouts',
-        },
-        {
-          text: 'Frequently Asked Questions',
-          href: 'https://vuetifyjs.com/getting-started/frequently-asked-questions',
-        },
-      ],
-    }),
-  }
+        data: form,
+      };
+      this.axios(config)
+        .then((response) => {
+          this.outcomeDialog = true;
+          this.outcomeTitle = "创建结果";
+          this.outcomeContent = "创建成功";
+          this.getAttendedGroup();
+          this.getCreatedGroup();
+        })
+        .catch((error) => {
+          this.outcomeDialog = true;
+          this.outcomeTitle = "创建结果";
+          this.outcomeContent = "创建失败";
+        });
+    },
+    deleteUserGroup() {
+      this.deleteDialog = false;
+    },
+  },
+  mounted: function () {
+    let event = new CustomEvent("changeState", {
+      detail: {
+        state: 3,
+      },
+      cancelable: true,
+    });
+    document.dispatchEvent(event);
+    this.getAttendedGroup();
+    this.getCreatedGroup();
+  },
+};
 </script>

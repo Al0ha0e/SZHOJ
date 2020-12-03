@@ -43,29 +43,96 @@
         <v-card>
           <v-card-title>题目列表</v-card-title>
           <v-card-text>
-            <v-btn color="green" v-on:click="addDialog = true" dark>新增</v-btn>
-            &nbsp;
-            <v-btn color="red" v-on:click="deleteDialog = true" dark
-              >删除</v-btn
-            >
-            <v-data-table></v-data-table>
+            <div v-if="(contestInfo.creator = userId)">
+              <v-btn color="green" v-on:click="addDialog = true" dark
+                >新增</v-btn
+              >
+              &nbsp;
+              <v-btn color="red" v-on:click="deleteDialog = true" dark
+                >删除</v-btn
+              >
+            </div>
+            <v-data-table
+              :headers="headers"
+              :items="contestInfo.questions"
+            ></v-data-table>
           </v-card-text>
         </v-card>
       </v-col>
       <v-col cols="3">
-        <v-card>
-          <v-card-title>比赛信息</v-card-title>
-          <v-card-text>
-            <v-btn color="purple" class="ma-2 white--text">
-              提交状态
-              <v-icon right dark> mdi-chart-pie </v-icon>
-            </v-btn>
-            <v-btn color="orange" class="ma-2 white--text">
-              排行榜
-              <v-icon right dark> mdi-lightbulb-on-outline </v-icon>
-            </v-btn>
-          </v-card-text>
-        </v-card>
+        <v-col cols="12">
+          <v-card>
+            <v-card-title>比赛信息</v-card-title>
+            <v-card-text>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title
+                    >比赛名: &nbsp;{{ contestInfo.name }}</v-list-item-title
+                  >
+                </v-list-item-content></v-list-item
+              >
+              <v-divider />
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title
+                    >比赛ID: &nbsp;{{ contestInfo.id }}</v-list-item-title
+                  >
+                </v-list-item-content></v-list-item
+              >
+              <v-divider />
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title
+                    >用户组: &nbsp;{{ contestInfo.gid }}</v-list-item-title
+                  >
+                </v-list-item-content></v-list-item
+              >
+              <v-divider />
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title
+                    >创建者: &nbsp;{{ contestInfo.creator }}</v-list-item-title
+                  >
+                </v-list-item-content></v-list-item
+              >
+              <v-divider />
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title
+                    >开始时间:
+                    <p />
+                    &nbsp;{{ contestInfo.start }}</v-list-item-title
+                  >
+                </v-list-item-content></v-list-item
+              >
+              <v-divider />
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title
+                    >持续时间: &nbsp;{{
+                      contestInfo.duration
+                    }}&nbsp;小时</v-list-item-title
+                  >
+                </v-list-item-content></v-list-item
+              >
+              <v-divider />
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="12">
+          <v-card>
+            <v-card-text>
+              <v-btn color="purple" class="ma-2 white--text">
+                状态
+                <v-icon right dark> mdi-chart-pie </v-icon>
+              </v-btn>
+              <v-btn color="orange" class="ma-2 white--text">
+                排行
+                <v-icon right dark> mdi-lightbulb-on-outline </v-icon>
+              </v-btn>
+            </v-card-text>
+          </v-card>
+        </v-col>
       </v-col>
     </v-row>
   </v-container>
@@ -78,17 +145,83 @@ export default {
   data: () => ({
     addDialog: false,
     deleteDialog: false,
+    userId: 0,
+    headers: [
+      {
+        text: "状态",
+        align: "start",
+        sortable: false,
+        value: "state",
+      },
+      {
+        text: "ID",
+        align: "start",
+        sortable: false,
+        value: "id",
+      },
+      {
+        text: "题目名称",
+        align: "start",
+        sortable: false,
+        value: "name",
+      },
+      {
+        text: "提交总数",
+        align: "start",
+        sortable: false,
+        value: "totCnt",
+      },
+      {
+        text: "AC数",
+        align: "start",
+        sortable: false,
+        value: "acCnt",
+      },
+    ],
+    contestInfo: { questions: [] },
   }),
-  methods: {},
+  methods: {
+    addContestProblem() {},
+    parstTime(time) {
+      let tm = time.split("T");
+      let day = tm[0];
+      let hr = tm[1].split("+")[0];
+      return day + " " + hr;
+    },
+  },
   mounted: function () {
     let event = new CustomEvent("changeState", {
       detail: {
-        state: 2,
+        state: -5,
       },
       cancelable: true,
     });
     document.dispatchEvent(event);
     //console.log(this.$route.params.id)
+    this.userId = localStorage.getItem("userId");
+    this.axios
+      .get(`http://127.0.0.1:8060/contest?cid=${this.$route.params.id}`)
+      .then((response) => {
+        this.contestInfo = response.data;
+        this.contestInfo.start = this.parstTime(this.contestInfo.start);
+        if (response.data.questions === null) {
+          this.contestInfo.questions = [];
+        }
+        console.log(this.contestInfo);
+      })
+      .catch((err) => {
+        let event = new CustomEvent("showMainDialog", {
+          detail: {
+            title: "提示",
+            content: "您不能查看这场比赛的内容",
+            callback: () => {
+              this.$router.push("/contest");
+            },
+          },
+          cancelable: true,
+        });
+        document.dispatchEvent(event);
+      });
   },
 };
 </script>

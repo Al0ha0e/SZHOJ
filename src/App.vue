@@ -33,6 +33,7 @@
             <v-card-actions>
               <v-btn text v-on:click="showUserInfo">我的信息</v-btn>
               <v-btn text v-on:click="createQuestion">创建题目</v-btn>
+              <v-btn text v-on:click="createContest">创建比赛</v-btn>
               <v-btn text v-on:click="logOut">登出</v-btn>
             </v-card-actions>
             <!--v-card-text>
@@ -48,6 +49,16 @@
       </div>
     </v-app-bar>
     <v-content class="grey lighten-5">
+      <v-dialog v-model="mainDialog" width="500">
+        <v-card>
+          <v-card-title>{{ dTitle }}</v-card-title>
+          <v-card-text>{{ dContent }}</v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn v-on:click="closeDialog" color="primary" text>确认</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <router-view></router-view>
     </v-content>
   </v-app>
@@ -61,10 +72,18 @@ export default {
 
   data: () => ({
     currPos: 0,
-    userId: "1726tgyeuva",
-    username: "Al0ha0e",
+    userId: "",
+    username: "",
+    mainDialog: false,
+    dTitle: "",
+    dContent: "",
+    dialogCallBack: () => {},
   }),
   methods: {
+    closeDialog: function () {
+      this.mainDialog = false;
+      this.dialogCallBack();
+    },
     logOut: function () {
       localStorage.removeItem("userId");
       localStorage.removeItem("username");
@@ -108,6 +127,11 @@ export default {
       this.currPos = -3;
       this.$router.push("/createq");
     },
+    createContest() {
+      if (this.currPos == -4) return;
+      this.currPos = -4;
+      this.$router.push("/createc");
+    },
   },
   mounted: function () {
     this.userId = localStorage.getItem("userId");
@@ -132,6 +156,10 @@ export default {
       this.currPos = -2;
     } else if (this.$route.path == "/createq") {
       this.currPos = -3;
+    } else if (this.$route.path == "/createc") {
+      this.currPos = -4;
+    } else if (this.$route.path == "/cinfo") {
+      this.currPos = -5;
     }
     document.addEventListener("changeState", (e) => {
       this.currPos = e.detail.state;
@@ -140,6 +168,12 @@ export default {
       this.userId = e.detail.userId;
       this.username = e.detail.username;
       //console.log("LOGGED IN ", this.userId, this.username);
+    });
+    document.addEventListener("showMainDialog", (e) => {
+      this.dTitle = e.detail.title;
+      this.dContent = e.detail.content;
+      this.dialogCallBack = e.detail.callback;
+      this.mainDialog = true;
     });
   },
 };
