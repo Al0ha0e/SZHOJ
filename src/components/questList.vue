@@ -27,13 +27,13 @@
           {{ item.difficulty }}
         </v-chip>
       </template>
-      <template v-slot:item.tags="{ item }">
+      <!--template v-slot:item.tags="{ item }">
         <v-chip-group>
           <v-chip outlined small v-for="tag in item.tags" :key="tag">
             {{ tag }}
           </v-chip>
         </v-chip-group>
-      </template>
+      </template-->
     </v-data-table>
   </v-container>
 </template>
@@ -81,13 +81,13 @@ export default {
         align: "start",
         sortable: false,
         value: "acCnt",
-      },
+      } /*
       {
         text: "标签",
         sortable: false,
         align: "start",
         value: "tags",
-      },
+      },*/,
     ],
     questions: [],
     questionCnt: 0,
@@ -107,6 +107,7 @@ export default {
       if (difficulty == "困难") return "red";
       else if (difficulty == "中等") return "orange";
       else if (difficulty == "简单") return "yellow";
+      else if (difficulty == "无") return "grey";
       else return "green";
     },
     showQuestionInfo(item, other) {
@@ -141,9 +142,12 @@ export default {
             );
           })
           .then((response) => {
-            this.questions = response.data;
+            this.questions = response.data.questions;
             for (let question of this.questions) {
               switch (question.difficulty) {
+                case 0:
+                  question.difficulty = "无";
+                  break;
                 case 1:
                   question.difficulty = "入门";
                   break;
@@ -172,7 +176,7 @@ export default {
               question.tags = tags;
             }
             this.loading = false;
-            this.questionCnt = this.questions.length;
+            this.questionCnt = response.data.count; //this.questions.length;
           })
           .catch((err) => {
             console.log(err);
@@ -182,9 +186,12 @@ export default {
         this.axios
           .get(`http://127.0.0.1:8060/pgquest?pg=${page}&cnt=${itemsPerPage}`)
           .then((response) => {
-            this.questions = response.data;
+            this.questions = response.data.questions;
             for (let question of this.questions) {
               switch (question.difficulty) {
+                case 0:
+                  question.difficulty = "无";
+                  break;
                 case 1:
                   question.difficulty = "入门";
                   break;
@@ -213,7 +220,7 @@ export default {
               question.tags = tags;
             }
             this.loading = false;
-            this.questionCnt = this.questions.length;
+            this.questionCnt = response.data.count;
           })
           .catch((err) => {
             console.log(err);

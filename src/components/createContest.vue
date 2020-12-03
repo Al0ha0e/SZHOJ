@@ -101,7 +101,7 @@ export default {
         .then((response) => {
           let event = new CustomEvent("showMainDialog", {
             detail: {
-              title: "添加结果",
+              title: "比赛添加结果",
               content: "比赛添加成功",
               callback: () => {
                 this.$router.push("/contest");

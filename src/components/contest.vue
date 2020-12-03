@@ -78,14 +78,14 @@ export default {
         .get(`http://127.0.0.1:8060/pgcontest?pg=${page}&cnt=${itemsPerPage}`)
         .then((response) => {
           console.log(response);
-          this.contests = response.data;
+          this.contests = response.data.contest;
           console.log(this.contests);
           for (let contest of this.contests) {
             contest.start = this.parstTime(contest.start);
             contest.duration = contest.duration.toString() + " 小时";
           }
           this.loading = false;
-          this.contestCnt = this.contests.length;
+          this.contestCnt = response.data.count;
         })
         .catch((err) => {});
     },

@@ -174,8 +174,8 @@ export default {
             param
           )
           .then((response) => {
-            this.statusShowed = this.parseResponse(response.data);
-            this.statusCnt = this.statusShowed.length;
+            this.statusShowed = this.parseResponse(response.data.status);
+            this.statusCnt = response.data.count;
             this.loading = false;
           })
           .catch((err) => {

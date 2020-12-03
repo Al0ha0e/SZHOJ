@@ -105,7 +105,7 @@
                 </v-list-item-content>
               </v-list-item>
               <v-divider />
-              <v-list-item>
+              <!--v-list-item>
                 <v-list-item-content>
                   <v-list-item-title
                     >标签
@@ -122,7 +122,7 @@
                     </v-chip-group>
                   </v-list-item-title>
                 </v-list-item-content>
-              </v-list-item>
+              </v-list-item-->
             </v-card-text>
           </v-card>
         </v-col>
@@ -137,10 +137,10 @@
                 状态
                 <v-icon right dark> mdi-chart-pie </v-icon>
               </v-btn>
-              <v-btn color="orange" class="ma-2 white--text">
+              <!--v-btn color="orange" class="ma-2 white--text">
                 题解
                 <v-icon right dark> mdi-lightbulb-on-outline </v-icon>
-              </v-btn>
+              </v-btn-->
             </v-card-text>
           </v-card>
         </v-col>
@@ -196,6 +196,7 @@ export default {
       if (difficulty == "困难") return "red";
       else if (difficulty == "中等") return "orange";
       else if (difficulty == "简单") return "yellow";
+      else if (difficulty == "无") return "grey";
       else return "green";
     },
     showMd(a, b) {
@@ -267,6 +268,9 @@ export default {
       .then((response) => {
         this.questionInfo = response.data;
         switch (this.questionInfo.difficulty) {
+          case 0:
+            this.questionInfo.difficulty = "无";
+            break;
           case 1:
             this.questionInfo.difficulty = "入门";
             break;

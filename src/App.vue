@@ -31,7 +31,7 @@
             <v-card-title>{{ username }}</v-card-title>
             <v-divider />
             <v-card-actions>
-              <v-btn text v-on:click="showUserInfo">我的信息</v-btn>
+              <!--v-btn text v-on:click="showUserInfo">我的信息</v-btn-->
               <v-btn text v-on:click="createQuestion">创建题目</v-btn>
               <v-btn text v-on:click="createContest">创建比赛</v-btn>
               <v-btn text v-on:click="logOut">登出</v-btn>
@@ -80,6 +80,13 @@ export default {
     dialogCallBack: () => {},
   }),
   methods: {
+    broadcastTime: function () {
+      let event = new CustomEvent("timeTick", {
+        detail: {},
+        cancelable: true,
+      });
+      document.dispatchEvent(event);
+    },
     closeDialog: function () {
       this.mainDialog = false;
       this.dialogCallBack();
@@ -137,6 +144,7 @@ export default {
     this.userId = localStorage.getItem("userId");
     this.username = localStorage.getItem("username");
     this.$cookies.config("30d");
+    this.timer = setInterval(this.broadcastTime, 1000);
     console.log(this.$cookies.get("mysession"), this.$cookies.keys());
     if (this.$route.path == "/login") {
       this.currPos = -100;
@@ -158,8 +166,9 @@ export default {
       this.currPos = -3;
     } else if (this.$route.path == "/createc") {
       this.currPos = -4;
-    } else if (this.$route.path == "/cinfo") {
+    } else if (this.$route.path.split("/")[1] == "cinfo") {
       this.currPos = -5;
+      console.log(this.currPos);
     }
     document.addEventListener("changeState", (e) => {
       this.currPos = e.detail.state;
