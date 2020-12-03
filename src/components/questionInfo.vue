@@ -245,8 +245,8 @@ export default {
           this.submitDialog = true;
           this.submitOutcome = "提交成功";
         })
-        .catch((error) => {
-          console.log(error);
+        .catch((err) => {
+          console.log(err);
           this.submitSuccess = false;
           this.submitDialog = true;
           this.submitOutcome = "提交失败";

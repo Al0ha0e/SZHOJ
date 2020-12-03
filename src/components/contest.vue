@@ -1,17 +1,27 @@
 <template>
-  <v-container> </v-container>
+  <v-container>
+    <v-data-table></v-data-table>
+  </v-container>
 </template>
 
 <script>
 export default {
-  name: "UserInfo",
+  name: "Contest",
 
-  data: () => ({}),
+  data: () => ({
+    contests: {
+      id: 0,
+      name: 1,
+      creator: 2,
+      startTime: "",
+      Duration: "",
+    },
+  }),
   methods: {},
   mounted: function () {
     let event = new CustomEvent("changeState", {
       detail: {
-        state: -2,
+        state: 2,
       },
       cancelable: true,
     });

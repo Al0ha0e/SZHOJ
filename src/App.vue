@@ -16,6 +16,7 @@
           <v-tab key="list" v-on:click="showList">题目列表</v-tab>
           <v-tab key="queue" v-on:click="showQueue">评测队列</v-tab>
           <v-tab key="contest" v-on:click="showContest">比赛</v-tab>
+          <v-tab key="usergroup" v-on:click="showUserGroup">用户组</v-tab>
         </v-tabs>
       </template>
       <v-spacer></v-spacer>
@@ -86,12 +87,21 @@ export default {
       this.$router.push("/queue");
     },
     showContest: function () {
+      if (this.currPos == 2) {
+        return;
+      }
       this.currPos = 2;
+      this.$router.push("/contest");
     },
     showUserInfo: function () {
       if (this.currPos == -2) return;
       this.currPos = -2;
       this.$router.push("/user/" + this.userId);
+    },
+    showUserGroup: function () {
+      if (this.currPos == 3) return;
+      this.currPos = 3;
+      this.$router.push("/usergroup");
     },
     createQuestion() {
       if (this.currPos == -3) return;
@@ -112,10 +122,16 @@ export default {
       this.currPos = 0;
     } else if (this.$route.path == "/queue") {
       this.currPos = 1;
+    } else if (this.$route.path == "/contest") {
+      this.currPos = 2;
+    } else if (this.$route.path == "/usergroup") {
+      this.currPos = 3;
     } else if (this.$route.path.split("/")[1] == "qinfo") {
       this.currPos = -1;
     } else if (this.$route.path.split("/")[1] == "user") {
       this.currPos = -2;
+    } else if (this.$route.path == "/createq") {
+      this.currPos = -3;
     }
     document.addEventListener("changeState", (e) => {
       this.currPos = e.detail.state;
@@ -123,7 +139,7 @@ export default {
     document.addEventListener("loggedIn", (e) => {
       this.userId = e.detail.userId;
       this.username = e.detail.username;
-      console.log("LOGGED IN ", this.userId, this.username);
+      //console.log("LOGGED IN ", this.userId, this.username);
     });
   },
 };

@@ -30,19 +30,26 @@ Vue.config.productionTip = false
 import QuestList from './components/questList';
 import TestQueue from './components/testQueue';
 import QuestInfo from './components/questionInfo';
+import StatusDetail from './components/statusDetail';
 import UserInfo from './components/userInfo';
+import UserGroup from './components/userGroup';
 import CreateQuestion from './components/createQuestion';
 import LogIn from './components/login'
 import Register from './components/register'
+import Contest from './components/contest'
+import ContestInfo from './components/contestInfo';
 
 const routes = [
   { path: '/list', component: QuestList },
   { path: '/queue', component: TestQueue },
   { path: '/qinfo/:id', component: QuestInfo },
+  { path: '/sdetail/:id', component: StatusDetail },
   { path: '/user/:id', component: UserInfo },
+  { path: '/usergroup', component: UserGroup },
   { path: '/createq', component: CreateQuestion },
   { path: '/login', component: LogIn },
-  { path: '/register', component: Register }
+  { path: '/register', component: Register },
+  { path: '/contest', component: ContestInfo }
 ]
 
 const router = new VueRouter({ mode: 'history', routes: routes })
