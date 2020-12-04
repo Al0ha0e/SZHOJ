@@ -1,3 +1,9 @@
+<!--
+孙梓涵编写
+SZHOJ v1.0.0
+本页面用于显示题目信息并提交答案
+-->
+
 <template>
   <v-container>
     <v-dialog v-model="submitDialog" width="500">
@@ -160,6 +166,7 @@ import "codemirror/mode/python/python.js";
 
 export default {
   name: "QuestionInfo",
+
   data: () => ({
     submitDialog: false,
     submitOutcome: "",
@@ -192,17 +199,16 @@ export default {
     ],
   }),
   methods: {
+    //根据难度显示颜色
     getColor(difficulty) {
-      if (difficulty == "困难") return "red";
-      else if (difficulty == "中等") return "orange";
-      else if (difficulty == "简单") return "yellow";
-      else if (difficulty == "无") return "grey";
+      if ("困难" == difficulty) return "red";
+      else if ("中等" == difficulty) return "orange";
+      else if ("简单" == difficulty) return "yellow";
+      else if ("无" == difficulty) return "grey";
       else return "green";
     },
-    showMd(a, b) {
-      console.log(b);
-    },
 
+    //初始化代码输入插件
     initCodeMirror() {
       this.coder = CodeMirror.fromTextArea(this.$refs.textarea, this.options);
       this.coder.setValue(this.code);
@@ -210,14 +216,18 @@ export default {
         this.code = coder.getValue();
       });
     },
+    //跳转至提交状态页面
     showStatus() {
       this.$router.push(`/queue?qid=${this.questionInfo.id}`);
     },
+
     confirmOutcome() {
       if (this.submitSuccess) {
         this.$router.push("/queue");
       }
     },
+
+    //提交答案
     commitAnswer() {
       let form = new FormData();
       let ansInfo = {
@@ -238,9 +248,10 @@ export default {
         data: form,
       };
 
+      //向后端提交答案
       this.axios(config)
         .then((response) => {
-          //console.log(response.data);
+          console.log(response);
           //this.$router.push("/queue");
           this.submitSuccess = true;
           this.submitDialog = true;
@@ -254,7 +265,9 @@ export default {
         });
     },
   },
+
   mounted: function () {
+    //显示状态改变
     let event = new CustomEvent("changeState", {
       detail: {
         state: -1,
@@ -263,9 +276,11 @@ export default {
     });
     document.dispatchEvent(event);
 
+    //获取题目信息
     this.axios
       .get(`http://127.0.0.1:8060/question?qid=${this.$route.params.id}`)
       .then((response) => {
+        console.log(response);
         this.questionInfo = response.data;
         switch (this.questionInfo.difficulty) {
           case 0:
@@ -293,9 +308,12 @@ export default {
       .catch((err) => {
         console.log(err);
       });
+
+    //获取题目描述
     this.axios
       .get(`http://127.0.0.1:8060/quedesc?qid=${this.$route.params.id}`)
       .then((response) => {
+        console.log(response);
         this.description = response.data;
       })
       .catch((err) => {

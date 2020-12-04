@@ -1,3 +1,10 @@
+<!--
+孙梓涵编写
+SZHOJ v1.0.0
+本页面用于显示并编辑用户组
+-->
+
+
 <template>
   <v-container>
     <v-dialog v-model="outcomeDialog" width="500">
@@ -154,11 +161,14 @@ export default {
     newUserGroupFile: {},
     groupToBeDeleted: "",
   }),
+
   methods: {
+    //获取已参与的用户组
     getAttendedGroup() {
       this.axios
         .get(`http://127.0.0.1:8060/usergroup?attend=1`)
         .then((response) => {
+          console.log(response);
           this.userGroupAttended = response.data;
           console.log("ADIDI", this.userGroupAttended);
         })
@@ -166,10 +176,12 @@ export default {
           console.log(err);
         });
     },
+    //获取创建的用户组
     getCreatedGroup() {
       this.axios
         .get(`http://127.0.0.1:8060/usergroup?attend=0`)
         .then((response) => {
+          console.log(response);
           this.userGroupCreatedList = [];
           this.userGroupCreated = response.data;
           for (let item of this.userGroupCreated) {
@@ -182,11 +194,15 @@ export default {
           console.log(err);
         });
     },
+
+    //显示用户组详细信息
     showGroupDetail(item, other) {
       this.detailDialog = true;
       this.userInfo = item.users;
       console.log(this.userInfo);
     },
+
+    //添加用户组
     addUserGroup() {
       this.addDialog = false;
       let form = new FormData();
@@ -201,8 +217,10 @@ export default {
         },
         data: form,
       };
+      //向后端发送请求
       this.axios(config)
         .then((response) => {
+          console.log(response);
           this.outcomeDialog = true;
           this.outcomeTitle = "创建结果";
           this.outcomeContent = "创建成功";
@@ -215,12 +233,15 @@ export default {
           this.outcomeContent = "创建失败";
         });
     },
+
+    //删除用户组
     deleteUserGroup() {
       this.deleteDialog = false;
       let gid = parseInt(this.groupToBeDeleted.split(" ")[1]);
       this.axios
         .post(`http://127.0.0.1:8060/delgroup?gid=${gid}`)
         .then((response) => {
+          console.log(response);
           this.outcomeDialog = true;
           this.outcomeTitle = "删除结果";
           this.outcomeContent = "删除成功";
@@ -234,7 +255,9 @@ export default {
         });
     },
   },
+
   mounted: function () {
+    //表明状态转换
     let event = new CustomEvent("changeState", {
       detail: {
         state: 3,

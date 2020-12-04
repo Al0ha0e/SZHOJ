@@ -1,3 +1,10 @@
+<!--
+孙梓涵编写
+SZHOJ v1.0.0
+本页面用于显示提交记录细节
+-->
+
+
 <template>
   <v-container>
     <v-row>
@@ -104,20 +111,23 @@ export default {
     },
   }),
   methods: {
+    //初始化代码高亮插件
     initCodeMirror() {
       this.coder = CodeMirror.fromTextArea(this.$refs.textarea, this.options);
     },
     getColor(state) {
-      if (state == "AC") return "green";
-      if (state == "WA") return "red";
-      if (state == "TLE" || state == "MLE") return "blue";
-      if (state == "RE") return "purple";
-      if (state == "CE") return "yellow";
-      if (state == "SYS_ERR") return "orange";
+      if ("AC" == state) return "green";
+      if ("WA" == state) return "red";
+      if ("TLE" == state || "MLE" == state) return "blue";
+      if ("RE" == state) return "purple";
+      if ("CE" == state) return "yellow";
+      if ("SYS_ERR" == state) return "orange";
       else return "grey";
     },
   },
+
   mounted: function () {
+    //表明状态改变
     let event = new CustomEvent("changeState", {
       detail: {
         state: -3,
@@ -126,11 +136,15 @@ export default {
     });
     document.dispatchEvent(event);
     this.initCodeMirror();
+
+    //向后端请求提交记录
     this.axios
       .get(`http://127.0.0.1:8060/singlestatus?sid=${this.$route.params.id}`)
       .then((response) => {
-        console.log(response.data);
+        console.log(response);
         this.status = response.data.status;
+
+        //将数据转换为可读格式
         this.status.memory = Math.floor(this.status.memory / (1024 * 1024));
         switch (this.status.state) {
           case 0:

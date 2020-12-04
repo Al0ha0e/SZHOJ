@@ -1,9 +1,15 @@
+<!--
+孙梓涵编写
+SZHOJ v1.0.0
+本页面用于创建比赛
+-->
+
 <template>
   <v-container>
     <v-card>
       <v-card-title>比赛信息</v-card-title>
       <v-card-text>
-        <v-text-field label="题目名称" v-model="contestName"></v-text-field>
+        <v-text-field label="比赛名称" v-model="contestName"></v-text-field>
         <v-select
           label="用户组"
           :items="userGroupCreatedList"
@@ -86,6 +92,7 @@ export default {
     duration: 0,
   }),
   methods: {
+    //发送创建比赛请求
     createContest() {
       let param = {
         name: this.contestName,
@@ -99,6 +106,7 @@ export default {
       this.axios
         .post("http://127.0.0.1:8060/addcontest", param)
         .then((response) => {
+          console.log(response);
           let event = new CustomEvent("showMainDialog", {
             detail: {
               title: "比赛添加结果",
@@ -125,6 +133,7 @@ export default {
     },
   },
   mounted: function () {
+    //状态转换
     let event = new CustomEvent("changeState", {
       detail: {
         state: -4,
@@ -133,9 +142,11 @@ export default {
     });
     document.dispatchEvent(event);
 
+    //请求自身创建的用户组
     this.axios
       .get(`http://127.0.0.1:8060/usergroup?attend=0`)
       .then((response) => {
+        console.log(response);
         this.userGroupCreatedList = [];
         for (let item of response.data) {
           this.userGroupCreatedList.push(

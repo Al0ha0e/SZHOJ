@@ -1,3 +1,9 @@
+<!--
+孙梓涵编写
+SZHOJ v1.0.0
+本页面用于显示比赛详细信息、榜单、状态及添加题目
+-->
+
 <template>
   <v-container>
     <v-dialog v-model="deleteDialog" width="500">
@@ -212,10 +218,12 @@ export default {
   name: "ContestInfo",
 
   data: () => ({
+    //以下四条对应四个对话框的开关状态
     addDialog: false,
     deleteDialog: false,
     selfStatusDialog: false,
     totStatusDialog: false,
+
     userId: 0,
     newQuestionInfo: {
       name: "",
@@ -229,6 +237,7 @@ export default {
     output: null,
     timeLimitList: [500, 1000, 2000, 3000, 4000, 5000, 10000],
     memoryLimitList: [64, 128, 256, 512],
+    //列表表头
     headers: [
       {
         text: "状态",
@@ -287,6 +296,7 @@ export default {
         value: "state",
       },
     ],
+
     totStatusHeaders: [],
     contestInfo: { questions: [] },
     questionName: [],
@@ -295,34 +305,43 @@ export default {
     status: [],
     totStatus: [],
   }),
+
   methods: {
+    //显示用户本人在本场比赛中的提交状态
     showSelfStatus() {
       this.getSelfStatus();
       this.selfStatusDialog = true;
     },
+
+    //计算排行榜
     getShowedTotalStatus(status) {
       let showedStatus = new Map();
       for (let st of status) {
         if (showedStatus.has(st.uid)) {
+          //用户此前已被添加到榜单中
           let qid = st.qid.toString();
           let userStatus = showedStatus.get(st.uid);
+          //
           if (userStatus[qid] != "ac") {
-            userStatus[qid] = st.state == 1 ? "ac" : "nac";
-            if (st.state == 0) {
+            //已经AC的不需要记录别的
+            userStatus[qid] = 1 == st.state ? "ac" : "nac";
+            if (0 == st.state) {
               userStatus[qid] = "unkown";
             }
-            userStatus.cnt += st.state == 1 ? 1 : 0;
+            userStatus.cnt += 1 == st.state ? 1 : 0; //计算AC题数
             showedStatus.set(st.uid, userStatus);
           }
         } else {
+          //用户此前未被添加到榜单中
           let userStatus = { id: 0, uid: st.uid, cnt: 0 };
           for (let question of this.contestInfo.questions) {
+            //遍历所有比赛题目创建状态
             if (question.id == st.qid) {
-              userStatus[st.qid.toString()] = st.state == 1 ? "ac" : "nac";
-              if (st.state == 0) {
+              userStatus[st.qid.toString()] = 1 == st.state ? "ac" : "nac";
+              if (0 == st.state) {
                 userStatus[st.qid.toString()] = "unkown";
               }
-              userStatus.cnt = st.state == 1 ? 1 : 0;
+              userStatus.cnt = 1 == st.state ? 1 : 0;
             } else {
               userStatus[question.id.toString()] = "unkown";
             }
@@ -336,37 +355,46 @@ export default {
         showedStatusList.push(st);
       }
       showedStatusList.sort((a, b) => {
+        //对结果排序
         a.cnt - b.cnt;
       });
       this.totStatus = showedStatusList;
     },
+
+    //获取数据并显示排行榜
     showTotalStatus() {
       this.axios
         .get(`http://127.0.0.1:8060/totcstatus?cid=${this.$route.params.id}`)
         .then((response) => {
-          console.log(response.data);
+          console.log(response);
           this.getShowedTotalStatus(response.data);
           //this.totStatus = response.data;
           this.totStatusDialog = true;
         })
         .catch((err) => {});
     },
+
+    //进入题目信息页面
     showQuestionInfo(item, other) {
       //console.log(arg1)
       this.$router.push("/qinfo/" + item.id);
     },
+    //更新比赛时间
     updateContestTime() {
       console.log(new Date().getTime());
     },
+
     getColor(state) {
-      if (state == "AC") return "green";
-      if (state == "WA") return "red";
-      if (state == "TLE" || state == "MLE") return "blue";
-      if (state == "RE") return "purple";
-      if (state == "CE") return "yellow";
-      if (state == "SYS_ERR") return "orange";
+      if ("AC" == state) return "green";
+      if ("WA" == state) return "red";
+      if ("TLE" == state || "MLE" == state) return "blue";
+      if ("RE" == state) return "purple";
+      if ("CE" == state) return "yellow";
+      if ("SYS_ERR" == state) return "orange";
       else return "grey";
     },
+
+    //将格式数据转化为可视数据
     parseStatus(status) {
       let ret = status;
       for (let st of ret) {
@@ -407,19 +435,25 @@ export default {
       }
       return ret;
     },
+
+    //获取自身提交状态
     getSelfStatus() {
       this.axios
         .get(
           `http://127.0.0.1:8060/cstatus?cid=${this.$route.params.id}&uid=${this.userId}`
         )
         .then((response) => {
+          console.log(response);
           this.status = this.parseStatus(response.data);
 
+          //计算每道题的通过情况
           for (let question of this.contestInfo.questions) {
             for (let st of this.status) {
               if (question.id == st.qid) {
+                //状态与题目相符
                 if (question.state != "ac") {
-                  if (st.state == "AC") {
+                  if ("AC" == st.state) {
+                    //已经AC的不需要更新
                     question.state = "ac";
                   } else if (st.state != "PENDING") {
                     question.state = "nac";
@@ -432,10 +466,13 @@ export default {
         })
         .catch((err) => {});
     },
+
+    //获取比赛信息
     getContestInfo() {
       this.axios
         .get(`http://127.0.0.1:8060/contest?cid=${this.$route.params.id}`)
         .then((response) => {
+          console.log(response);
           this.contestInfo = response.data;
           this.contestInfo.start = this.parstTime(this.contestInfo.start);
           this.startTime = Date.parse(this.contestInfo.start);
@@ -447,6 +484,7 @@ export default {
             { text: "排名", align: "start", sortable: false, value: "id" },
             { text: "用户ID", align: "start", sortable: false, value: "uid" },
           ];
+
           for (let quest of this.contestInfo.questions) {
             quest.state = "unkown";
             this.questionName.push(
@@ -477,6 +515,8 @@ export default {
           document.dispatchEvent(event);
         });
     },
+
+    //上传题目
     uploadQuestion() {
       let form = new FormData();
       this.newQuestionInfo.creator = this.userId;
@@ -485,6 +525,7 @@ export default {
       form.append("file", this.description);
       form.append("file", this.input);
       form.append("file", this.output);
+
       let config = {
         method: "post",
         url: "http://127.0.0.1:8060/upquestion",
@@ -493,9 +534,10 @@ export default {
         },
         data: form,
       };
+
       this.axios(config)
         .then((response) => {
-          //console.log(response.data);
+          console.log(response);
           let event = new CustomEvent("showMainDialog", {
             detail: {
               title: "题目添加结果",
@@ -528,8 +570,10 @@ export default {
       return day + " " + hr;
     },
   },
+
   mounted: function () {
     document.addEventListener("timeTick", (e) => {
+      //此处用于计算比赛进度
       let now = new Date().getTime();
       let percent =
         (now - this.startTime) / (this.contestInfo.duration * 3600 * 10);
@@ -542,6 +586,8 @@ export default {
       }
       console.log(this.timePercent, new Date(this.timePercent));
     });
+
+    //向主组件表明状态改变
     let event = new CustomEvent("changeState", {
       detail: {
         state: -5,

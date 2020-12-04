@@ -1,3 +1,9 @@
+<!--
+孙梓涵编写
+SZHOJ v1.0.0
+本页面用于显示题目列表
+-->
+
 <template>
   <v-container>
     <v-data-table
@@ -122,11 +128,14 @@ export default {
 
       if (refreshStatus) {
         this.questionStatus = new Map();
+        //请求用户通过题目情况
         this.axios
           .get(`http://127.0.0.1:8060/ministatus?uid=${this.userId}`)
           .then((response) => {
+            console.log(response);
             for (let st of response.data) {
               st.qid = st.qid.toString();
+              //记录通过状态
               if (this.questionStatus.has(st.qid)) {
                 let qst = this.questionStatus.get(st.qid);
                 if (qst == "1") {
@@ -137,13 +146,16 @@ export default {
                 this.questionStatus.set(st.qid, st.state.toString());
               }
             }
+            //继续请求题目列表
             return this.axios.get(
               `http://127.0.0.1:8060/pgquest?pg=${page}&cnt=${itemsPerPage}`
             );
           })
           .then((response) => {
+            console.log(response);
             this.questions = response.data.questions;
             for (let question of this.questions) {
+              //转换数据为可视状态
               switch (question.difficulty) {
                 case 0:
                   question.difficulty = "无";
@@ -183,10 +195,13 @@ export default {
             this.loading = false;
           });
       } else {
+        //根据页面获取数据
         this.axios
           .get(`http://127.0.0.1:8060/pgquest?pg=${page}&cnt=${itemsPerPage}`)
           .then((response) => {
+            console.log(response);
             this.questions = response.data.questions;
+            //转换数据为可视格式
             for (let question of this.questions) {
               switch (question.difficulty) {
                 case 0:
@@ -205,6 +220,7 @@ export default {
                   question.difficulty = "困难";
                   break;
               }
+
               if (this.questionStatus.has(question.id.toString())) {
                 question["state"] =
                   this.questionStatus.get(question.id.toString()) == "1"
@@ -231,6 +247,7 @@ export default {
   },
   mounted: function () {
     this.userId = localStorage.getItem("userId");
+    //显示状态改变
     let event = new CustomEvent("changeState", {
       detail: {
         state: 0,

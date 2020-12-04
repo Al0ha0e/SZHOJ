@@ -1,3 +1,11 @@
+/*********
+ * 孙梓涵编写
+ * SZHOJ v1.0.0
+ * 本页面用于全局导入模块
+ * ************ */
+
+
+
 import Vue from 'vue'
 import App from './App.vue'
 import vuetify from './plugins/vuetify';
@@ -27,6 +35,8 @@ import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 Vue.config.productionTip = false
 
+
+//路由部分
 import QuestList from './components/questList';
 import TestQueue from './components/testQueue';
 import QuestInfo from './components/questionInfo';
@@ -57,9 +67,12 @@ const routes = [
 
 const router = new VueRouter({ mode: 'history', routes: routes })
 
+
+//校验登录信息
 router.beforeEach((to, from, next) => {
   let userId = localStorage.getItem("userId")
   if (userId === null) {
+    //没有用户信息存储，需要登录
     if (to.fullPath != '/login' && to.fullPath != '/register') {
       next('/login')
     } else {

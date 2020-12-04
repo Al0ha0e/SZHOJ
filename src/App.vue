@@ -1,3 +1,10 @@
+<!--
+孙梓涵编写
+SZHOJ v1.0.0
+本页面用于显示主组件并根据路由路径显示子组件
+-->
+
+
 <template>
   <v-app>
     <v-app-bar app color="blue" dark elevation="2">
