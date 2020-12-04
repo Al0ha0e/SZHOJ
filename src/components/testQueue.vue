@@ -189,6 +189,11 @@ export default {
           });
       } else {
         //按页面无条件，每页都需要重新加载数据
+        if (page > 1) {
+          this.getResponseByPage(page, itemsPerPage);
+          this.loading = false;
+          return;
+        }
         this.axios
           .get(
             `http://127.0.0.1:8060/pgstatus?pg=${page}&cnt=${itemsPerPage}`,
@@ -196,8 +201,12 @@ export default {
           )
           .then((response) => {
             console.log(response);
+            /*
             this.statusShowed = this.parseResponse(response.data.status);
-            this.statusCnt = response.data.count;
+            this.statusCnt = response.data.count;*/
+            this.status = this.parseResponse(response.data.status);
+            this.statusCnt = this.status.length;
+            this.getResponseByPage(page, itemsPerPage);
             this.loading = false;
           })
           .catch((err) => {

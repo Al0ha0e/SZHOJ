@@ -316,6 +316,7 @@ export default {
     //计算排行榜
     getShowedTotalStatus(status) {
       let showedStatus = new Map();
+      let stCnt = 1;
       for (let st of status) {
         if (showedStatus.has(st.uid)) {
           //用户此前已被添加到榜单中
@@ -333,7 +334,8 @@ export default {
           }
         } else {
           //用户此前未被添加到榜单中
-          let userStatus = { id: 0, uid: st.uid, cnt: 0 };
+          let userStatus = { id: stCnt, uid: st.uid, cnt: 0 };
+          stCnt++;
           for (let question of this.contestInfo.questions) {
             //遍历所有比赛题目创建状态
             if (question.id == st.qid) {
@@ -358,6 +360,10 @@ export default {
         //对结果排序
         a.cnt - b.cnt;
       });
+      for (let i = 1; i <= showedStatus.length; i++) {
+        console.log(showedStatus);
+        showedStatus.id = i;
+      }
       this.totStatus = showedStatusList;
     },
 
@@ -377,6 +383,18 @@ export default {
     //进入题目信息页面
     showQuestionInfo(item, other) {
       //console.log(arg1)
+      if (this.timePercent <= 0 || this.timePercent >= 100) {
+        let event = new CustomEvent("showMainDialog", {
+          detail: {
+            title: "提示",
+            content: "不在答题时间范围内，不能查看题目",
+            callback: () => {},
+          },
+          cancelable: true,
+        });
+        document.dispatchEvent(event);
+        return;
+      }
       this.$router.push("/qinfo/" + item.id);
     },
     //更新比赛时间
@@ -584,7 +602,7 @@ export default {
       } else {
         this.timePercent = percent;
       }
-      console.log(this.timePercent, new Date(this.timePercent));
+      //console.log(this.timePercent, new Date(this.timePercent));
     });
 
     //向主组件表明状态改变

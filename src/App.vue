@@ -66,6 +66,21 @@ SZHOJ v1.0.0
           </v-card-actions>
         </v-card>
       </v-dialog>
+      <v-dialog v-model="changeDialog" width="500">
+        <v-card>
+          <v-card-title>提示</v-card-title>
+          <v-card-text>离开本页面可能会丢失此前设置，是否离开？</v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn v-on:click="confirmStateChange" color="primary" text
+              >是</v-btn
+            >
+            <v-btn v-on:click="changeDialog = false" color="primary" text
+              >否</v-btn
+            >
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <router-view></router-view>
     </v-content>
   </v-app>
@@ -82,6 +97,7 @@ export default {
     userId: "",
     username: "",
     mainDialog: false,
+    changeDialog: false,
     dTitle: "",
     dContent: "",
     dialogCallBack: () => {},
@@ -94,6 +110,11 @@ export default {
       });
       document.dispatchEvent(event);
     },
+    confirmStateChange() {
+      this.changeDialog = false;
+      this.currPos = 0;
+      this.$router.push("/list");
+    },
     closeDialog: function () {
       this.mainDialog = false;
       this.dialogCallBack();
@@ -104,7 +125,10 @@ export default {
       this.$router.push("/login");
     },
     showList: function () {
-      if (this.currPos == 0) {
+      if (0 == this.currPos) {
+        return;
+      } else if (-3 == this.currPos || -4 == this.currPos) {
+        this.changeDialog = true;
         return;
       }
       this.currPos = 0;

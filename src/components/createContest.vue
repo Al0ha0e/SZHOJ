@@ -88,12 +88,28 @@ export default {
     userGroupCreatedList: [],
     userGroup: "",
     contestName: "",
-    durationList: [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6],
+    durationList: [1, 2, 3, 4, 5, 6],
     duration: 0,
   }),
   methods: {
+    showMainDialog(title, content, callback) {
+      let event = new CustomEvent("showMainDialog", {
+        detail: {
+          title: title,
+          content: content,
+          callback: callback,
+        },
+        cancelable: true,
+      });
+      document.dispatchEvent(event);
+    },
+
     //发送创建比赛请求
     createContest() {
+      if (this.contestName.length > 15) {
+        this.showMainDialog("提示", "比赛名不得长于15", () => {});
+        return;
+      }
       let param = {
         name: this.contestName,
         creator: parseInt(localStorage.getItem("userId")),

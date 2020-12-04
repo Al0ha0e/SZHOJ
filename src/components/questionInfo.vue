@@ -223,7 +223,11 @@ export default {
 
     confirmOutcome() {
       if (this.submitSuccess) {
-        this.$router.push("/queue");
+        if (this.questionInfo.cid != 0) {
+          this.$router.push("/cinfo/" + this.questionInfo.cid);
+        } else {
+          this.$router.push("/queue");
+        }
       }
     },
 

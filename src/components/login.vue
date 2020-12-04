@@ -62,14 +62,14 @@ export default {
     loginSuccess: false,
     //输入过滤规则
     usnameRules: [
-      (value) => !!value || "Required.",
-      (value) => (value && value.length >= 3) || "Min 3 characters",
-      (value) => (value && value.length <= 15) || "Max 15 characters",
+      (value) => !!value || "字段不能为空",
+      (value) => (value && value.length >= 3) || "至少三个字符",
+      (value) => (value && value.length <= 15) || "至多十五个字符",
     ],
     passwdRules: [
-      (value) => !!value || "Required.",
-      (value) => (value && value.length >= 8) || "Min 8 characters",
-      (value) => (value && value.length <= 15) || "Max 15 characters",
+      (value) => !!value || "字段不能为空",
+      (value) => (value && value.length >= 8) || "至少三个字符",
+      (value) => (value && value.length <= 15) || "至多十五个字符",
     ],
     showPassword: false,
     username: "",

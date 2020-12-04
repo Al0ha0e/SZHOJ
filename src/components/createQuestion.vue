@@ -57,9 +57,12 @@ SZHOJ v1.0.0
                 v-model="difficulty"
               ></v-select>
               <b>时间限制 {{ timeLimit }} (ms)</b>
-              <v-slider min="500" max="20000" v-model="timeLimit"></v-slider>
+              <v-select :items="timeLimitList" v-model="timeLimit"></v-select>
               <b>空间限制 {{ memoryLimit }} (MB)</b>
-              <v-slider min="1" max="512" v-model="memoryLimit"></v-slider>
+              <v-select
+                :items="memoryLimitList"
+                v-model="memoryLimit"
+              ></v-select>
               <b>测试输入</b>
               <v-file-input dense v-on:change="getInput"></v-file-input>
               <b>答案</b>
@@ -100,6 +103,8 @@ export default {
     rendered: ``,
     name: "",
     difficultyList: ["入门", "简单", "中等", "困难"],
+    timeLimitList: [500, 1000, 2000, 3000, 4000, 5000, 10000],
+    memoryLimitList: [64, 128, 256, 512],
     difficulty: "",
     timeLimit: 500,
     memoryLimit: 1,
